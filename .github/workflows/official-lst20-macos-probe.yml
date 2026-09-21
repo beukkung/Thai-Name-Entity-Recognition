@@ -1,0 +1,32 @@
+name: Official LST20 macOS Probe
+
+on:
+  push:
+    branches: [2026-official-lst20-probe]
+  workflow_dispatch:
+
+jobs:
+  probe-macos:
+    runs-on: macos-latest
+    timeout-minutes: 5
+    steps:
+      - name: Measure Open-D download path for 30 seconds
+        shell: bash
+        run: |
+          set -euxo pipefail
+          URL="https://opend-portal.nectec.or.th/dataset/d1364791-84bc-4b65-9904-79aa0aa2c5a6/resource/063e2392-1eba-4099-a732-fbaf1ba9a293/download/opend_lst20_corpus.zip"
+          set +e
+          curl -L --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" "$URL" -o /tmp/lst20-test.zip
+          RC=$?
+          set -e
+          ls -lh /tmp/lst20-test.zip || true
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("/tmp/lst20-test.zip")
+          n=p.stat().st_size if p.exists() else 0
+          print("downloaded_bytes_30s=", n)
+          print("complete=", n == 16117011)
+          if n == 0:
+              raise SystemExit("No bytes received from Open-D")
+          PY
+          exit 0
