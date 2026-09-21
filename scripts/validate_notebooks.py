@@ -2,8 +2,8 @@
 
 This script deliberately does not claim that the historical 2022 notebooks are
 fully reproducible. It checks that every notebook is valid JSON/notebook format
-and that the modern quickstart has Python code that can be parsed after IPython
-magics are neutralized.
+and that maintained notebooks under ``notebooks/`` have Python code that can be
+parsed after IPython magics are neutralized.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ import nbformat
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODERN_NOTEBOOK = ROOT / "notebooks" / "00_quickstart_pythainlp.ipynb"
+MODERN_NOTEBOOK_DIR = ROOT / "notebooks"
 
 
 def sanitize_ipython(source: str) -> str:
@@ -56,7 +56,7 @@ def main() -> None:
     for path in notebooks:
         validate_notebook(
             path,
-            check_python_syntax=(path.resolve() == MODERN_NOTEBOOK.resolve()),
+            check_python_syntax=(MODERN_NOTEBOOK_DIR in path.resolve().parents),
         )
         print(f"OK: {path.relative_to(ROOT)}")
 
