@@ -1,8 +1,11 @@
-# Modern, lightweight environment for the CI-tested quickstart notebook.
+# Modern environment for the CI-tested PyThaiNLP thainer-v2 quickstart.
+# thainer-v2 runs a WangchanBERTa-based token-classification model.
 # The historical notebooks use older stacks; see docs/REPRODUCIBILITY.md.
 
 pythainlp>=5.3.2,<6
 python-crfsuite>=0.9.12,<1
+torch>=2.2,<3
+transformers>=5.17,<6
 jupyter>=1.0
 nbconvert>=7.0
 nbformat>=5.9
