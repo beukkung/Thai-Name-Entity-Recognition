@@ -1,0 +1,17 @@
+# Common dependencies used across the notebooks.
+# These notebooks were originally developed in 2022. Some notebook cells
+# install historical package versions directly; see docs/REPRODUCIBILITY.md.
+
+numpy
+pandas
+tqdm
+scikit-learn
+tensorflow
+torch
+transformers
+datasets
+sentencepiece
+simpletransformers
+pythainlp
+thai2transformers
+jupyter
