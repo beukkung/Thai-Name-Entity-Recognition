@@ -36,7 +36,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--train-batch-size", type=int, default=8)
     parser.add_argument("--eval-batch-size", type=int, default=8)
     parser.add_argument("--weight-decay", type=float, default=0.01)
+    parser.add_argument("--warmup-ratio", type=float, default=0.0)
+    parser.add_argument("--gradient-accumulation-steps", type=int, default=1)
+    parser.add_argument("--logging-steps", type=int, default=50)
     parser.add_argument("--seed", type=int, default=42)
+    precision = parser.add_mutually_exclusive_group()
+    precision.add_argument(
+        "--fp16", action="store_true", help="Use FP16 mixed precision on supported hardware."
+    )
+    precision.add_argument(
+        "--bf16", action="store_true", help="Use BF16 mixed precision on supported hardware."
+    )
+    parser.add_argument(
+        "--gradient-checkpointing",
+        action="store_true",
+        help="Trade compute for lower activation memory during training.",
+    )
+    parser.add_argument(
+        "--resume-from-checkpoint",
+        default=None,
+        help="Optional checkpoint directory to resume training from.",
+    )
     parser.add_argument(
         "--smoke-limit",
         type=int,
@@ -85,6 +105,10 @@ def main() -> None:
         id2label=ID2LABEL,
         label2id=LABEL2ID,
     )
+    if args.gradient_checkpointing:
+        model.gradient_checkpointing_enable()
+        if hasattr(model.config, "use_cache"):
+            model.config.use_cache = False
 
     training_args = TrainingArguments(
         output_dir=str(output_dir),
@@ -93,14 +117,21 @@ def main() -> None:
         per_device_eval_batch_size=args.eval_batch_size,
         num_train_epochs=args.epochs,
         weight_decay=args.weight_decay,
+        warmup_ratio=args.warmup_ratio,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        fp16=args.fp16,
+        bf16=args.bf16,
+        gradient_checkpointing=args.gradient_checkpointing,
         eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
         metric_for_best_model="f1",
         greater_is_better=True,
-        logging_steps=50,
+        logging_steps=args.logging_steps,
+        save_total_limit=2,
         report_to="none",
         seed=args.seed,
+        data_seed=args.seed,
     )
 
     trainer = Trainer(
@@ -113,7 +144,7 @@ def main() -> None:
         compute_metrics=build_compute_metrics(LST20_NER_TAGS),
     )
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint=args.resume_from_checkpoint)
     test_metrics = trainer.evaluate(tokenized["test"], metric_key_prefix="test")
     print(test_metrics)
 
@@ -131,7 +162,14 @@ def main() -> None:
             "train_batch_size": args.train_batch_size,
             "eval_batch_size": args.eval_batch_size,
             "weight_decay": args.weight_decay,
+            "warmup_ratio": args.warmup_ratio,
+            "gradient_accumulation_steps": args.gradient_accumulation_steps,
+            "logging_steps": args.logging_steps,
+            "fp16": args.fp16,
+            "bf16": args.bf16,
+            "gradient_checkpointing": args.gradient_checkpointing,
             "seed": args.seed,
+            "resume_from_checkpoint": args.resume_from_checkpoint,
             "smoke_limit": args.smoke_limit,
         },
         "dataset_audit": dataset_audit,
