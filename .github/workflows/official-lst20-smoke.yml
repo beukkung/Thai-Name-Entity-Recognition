@@ -26,12 +26,36 @@ jobs:
           pip install --index-url https://download.pytorch.org/whl/cpu torch
           pip install "accelerate>=1.0"
 
+      - name: Probe official Open-D resource
+        run: |
+          curl -I -L --fail \
+            --connect-timeout 20 \
+            --max-time 45 \
+            -A "Mozilla/5.0 (GitHub Actions; Thai-NER-2026 research benchmark)" \
+            "https://opend-portal.nectec.or.th/dataset/d1364791-84bc-4b65-9904-79aa0aa2c5a6/resource/063e2392-1eba-4099-a732-fbaf1ba9a293/download/opend_lst20_corpus.zip"
+
       - name: Download official Open-D LST20 corpus
         run: |
           mkdir -p /tmp/lst20
-          curl -L --fail --retry 3 \
+          curl -L --fail --retry 2 \
+            --connect-timeout 20 \
+            --max-time 180 \
+            --speed-limit 1024 \
+            --speed-time 30 \
+            -A "Mozilla/5.0 (GitHub Actions; Thai-NER-2026 research benchmark)" \
             "https://opend-portal.nectec.or.th/dataset/d1364791-84bc-4b65-9904-79aa0aa2c5a6/resource/063e2392-1eba-4099-a732-fbaf1ba9a293/download/opend_lst20_corpus.zip" \
             -o /tmp/lst20/opend_lst20_corpus.zip
+          ls -lh /tmp/lst20/opend_lst20_corpus.zip
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("/tmp/lst20/opend_lst20_corpus.zip")
+          expected = 16117011
+          print(f"Downloaded bytes: {path.stat().st_size}")
+          if path.stat().st_size != expected:
+              raise SystemExit(
+                  f"Unexpected ZIP size: {path.stat().st_size} (expected {expected})"
+              )
+          PY
           unzip -q /tmp/lst20/opend_lst20_corpus.zip -d /tmp/lst20/extracted
           du -sh /tmp/lst20/opend_lst20_corpus.zip /tmp/lst20/extracted
           find /tmp/lst20/extracted -maxdepth 3 -type d | sort | head -80
