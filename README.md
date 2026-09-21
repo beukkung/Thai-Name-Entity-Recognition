@@ -43,6 +43,7 @@ This quickstart:
 |---|---|---|---|
 | `notebooks/00_quickstart_pythainlp.ipynb` | ✅ 2026 Modern | ✅ Yes | Recommended zero-dataset starting point |
 | `notebooks/10_wangchanberta_lst20_2026.ipynb` | 🧪 2026 Modernization | ⚙️ Pipeline tested | Modern WangchanBERTa + LST20 training walkthrough |
+| `notebooks/20_lst20_benchmark_2026.ipynb` | 📊 2026 Benchmark | ⏳ Requires authorized LST20 | Audit → full run → reproducible result artifacts |
 | `ThaiNER-PlyThaiNLP.ipynb` | ⚠️ Legacy (2022) | No | Historical code; old API / logic requires modernization |
 | `ThaiNER-BILSTM.ipynb` | ⚠️ Legacy (2022) | No | Depends on local corpus/preprocessing and old TensorFlow-era code |
 | `ThaiNER-BERT.ipynb` | ⚠️ Legacy (2022) | No | Depends on LST20, Google Drive paths, and historical Transformer stack |
@@ -57,6 +58,7 @@ This quickstart:
 |---|---|---|
 | `notebooks/00_quickstart_pythainlp.ipynb` | 2026 PyThaiNLP | CI-tested runnable entry point |
 | `notebooks/10_wangchanberta_lst20_2026.ipynb` | 2026 WangchanBERTa | Modern reproducible LST20 training workflow |
+| `notebooks/20_lst20_benchmark_2026.ipynb` | 2026 Benchmark runner | Corpus audit + recorded full benchmark workflow |
 | `ThaiNER-BILSTM.ipynb` | Bidirectional LSTM | Builds a neural sequence-labeling workflow for Thai NER |
 | `ThaiNER-BERT.ipynb` | WangchanBERTa / Transformer | Fine-tunes a Thai pretrained transformer for token classification |
 | `ThaiNER-PlyThaiNLP.ipynb` | PyThaiNLP | Provides a lightweight baseline using `ThaiNameTagger` |
@@ -122,15 +124,22 @@ Thai-Name-Entity-Recognition/
 ├── ThaiNER-PlyThaiNLP.ipynb
 ├── notebooks/
 │   ├── 00_quickstart_pythainlp.ipynb
-│   └── 10_wangchanberta_lst20_2026.ipynb
+│   ├── 10_wangchanberta_lst20_2026.ipynb
+│   └── 20_lst20_benchmark_2026.ipynb
 ├── src/thai_ner_2026/
 │   ├── data.py
 │   ├── labels.py
+│   ├── audit.py
 │   ├── metrics.py
 │   ├── preprocessing.py
+│   ├── reporting.py
 │   └── train.py
 ├── tests/
 │   └── test_2026_pipeline.py
+├── benchmark/
+│   ├── README.md
+│   └── results/
+├── CHANGELOG.md
 ├── README.md
 ├── requirements.txt
 ├── requirements-modern.txt
@@ -143,7 +152,10 @@ Thai-Name-Entity-Recognition/
 │   └── notebook-ci.yml
 ├── docs/
 │   ├── REPRODUCIBILITY.md
-│   └── 2026_MODERNIZATION.md
+│   ├── 2026_MODERNIZATION.md
+│   ├── LST20_SETUP.md
+│   ├── BENCHMARK_PROTOCOL_2026.md
+│   └── MODEL_CARD_2026_TEMPLATE.md
 ├── .gitignore
 └── .gitattributes
 ```
@@ -232,6 +244,52 @@ A full benchmark score is intentionally **not claimed yet**. Publishing one resp
 
 ---
 
+## 📊 2026 benchmark-ready workflow
+
+The repository is now prepared to produce a **recorded, reproducible benchmark** once an authorized LST20 corpus is available locally.
+
+First audit the corpus:
+
+```bash
+thai-ner-audit --data-dir /path/to/LST20Corpus
+```
+
+Then run the fixed 2026 protocol:
+
+```bash
+thai-ner-train \
+  --data-dir /path/to/LST20Corpus \
+  --epochs 3 \
+  --learning-rate 2e-5 \
+  --train-batch-size 8 \
+  --eval-batch-size 8 \
+  --max-length 256 \
+  --seed 42 \
+  --output-dir outputs/wangchanberta-lst20-2026
+```
+
+A successful run automatically produces:
+
+```text
+outputs/wangchanberta-lst20-2026/
+├── best-model/
+├── benchmark_run.json
+└── BENCHMARK_RESULT.md
+```
+
+The JSON records the model, hyperparameters, dataset audit, package versions, timestamp, hardware metadata, and test metrics. This prevents benchmark values from being manually copied without experiment context.
+
+See:
+
+- [LST20 setup](docs/LST20_SETUP.md)
+- [2026 benchmark protocol](docs/BENCHMARK_PROTOCOL_2026.md)
+- [2026 model-card template](docs/MODEL_CARD_2026_TEMPLATE.md)
+- [project timeline / changelog](CHANGELOG.md)
+
+> The remaining blocker for an actual full score is intentionally external: LST20 must be acquired through the authorized AI for Thai flow and is not redistributed by this repository.
+
+---
+
 ## 🔬 Approaches
 
 ### 1. BiLSTM
@@ -298,12 +356,16 @@ Completed in the 2026 continuation:
 - ✅ subtoken label alignment
 - ✅ entity-level evaluation utilities
 - ✅ automated unit and integration smoke tests
+- ✅ LST20 corpus audit CLI
+- ✅ fixed 2026 benchmark protocol
+- ✅ automatic benchmark JSON + Markdown result artifacts
+- ✅ model-card template and benchmark workspace
 
 Next meaningful milestone:
 
-- ⏳ run and record a complete WangchanBERTa + LST20 benchmark
-- ⏳ publish the resulting precision / recall / F1 table
-- ⏳ add model-card style experiment metadata
+- ⏳ acquire LST20 through the authorized AI for Thai flow
+- ⏳ run and record the complete WangchanBERTa + LST20 benchmark
+- ⏳ publish the generated precision / recall / F1 result
 - ⏳ modernize the historical BiLSTM path only if it adds comparison value
 
 ---
