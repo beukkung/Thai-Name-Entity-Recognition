@@ -25,6 +25,43 @@ The modernization adds:
 - a modern walkthrough notebook
 - clearer separation between historical artifacts and current maintained code
 
+
+## 2022 vs 2026: what is different?
+
+| Area | Original 2022 notebooks | Maintained 2026 path |
+|---|---|---|
+| Experiment shape | Cell-by-cell exploratory scripts | Reusable package, CLI, notebooks, and tests |
+| NER engine | Historical `ThaiNameTagger` / older APIs | Explicit PyThaiNLP `thainer-v2` quickstart plus WangchanBERTa fine-tuning |
+| Tokenization | Notebook-specific preprocessing | Fast-tokenizer `word_ids()` alignment with ignored special/non-first subtokens |
+| Training | Hidden local paths and inline installs | Configurable CLI with seed, validation, checkpoint selection, resume, and recorded run metadata |
+| Evaluation | Predictions and token-level inspection | Entity-level precision, recall, F1, and token accuracy with a fixed protocol |
+| Data handling | Assumes local files without a preflight contract | Authorized LST20 acquisition, strict parser, corpus audit, and split-aware benchmark |
+| Quality control | No continuous execution contract | Notebook validation, CI smoke tests, unit tests, and generated benchmark artifacts |
+| Claims | Informal experiment output | No benchmark claim until the complete run is recorded and reproducible |
+
+The update is intentionally additive: the historical notebooks are preserved for learning and provenance, while new work is clearly marked as a 2026 continuation.
+
+## What current Thai NER practice looks like in 2026
+
+The maintained path follows the current, widely used Transformer token-classification workflow:
+
+1. Start with a lightweight baseline so the task and labels can be inspected quickly.
+2. Fine-tune a Thai pretrained encoder such as WangchanBERTa with a token-classification head when task-specific accuracy matters.
+3. Keep the corpus word labels, then align them to SentencePiece subtokens with a fast tokenizer. Special tokens and non-first subtokens are ignored with `-100`.
+4. Use dynamic padding through `DataCollatorForTokenClassification` instead of padding every example to the global maximum.
+5. Select the checkpoint on validation entity-level F1, then evaluate the selected checkpoint once on the held-out test split.
+6. Record dataset provenance, label mapping, seed, hyperparameters, package versions, hardware, and generated metrics as run artifacts.
+7. Add per-domain evaluation and error analysis before claiming the model is suitable for production text. LST20 results alone do not establish performance on banking, chat, OCR, legal, or social-media text.
+8. Use a nested-NER model only when entities can overlap; this is a different task from the flat LST20 label space and is not silently mixed into this benchmark.
+
+These choices correspond to the current Hugging Face token-classification recipe and the current PyThaiNLP NER API. See the [Hugging Face token-classification guide](https://huggingface.co/docs/transformers/tasks/token_classification), [PyThaiNLP tagging documentation](https://pythainlp.org/docs/5.3/api/tag.html), and [WangchanBERTa model card](https://huggingface.co/airesearch/wangchanberta-base-att-spm-uncased).
+
+## 2026 scope boundary
+
+This repository now provides a **reproducible modernization path**, not a claim that the original 2022 notebooks have become historically new or that this project is state of the art.
+
+A complete 2026 benchmark still requires an authorized LST20 copy and a full run on the documented protocol. The smoke test and CI prove that the pipeline wiring works; they are not a substitute for a full-corpus result.
+
 ## Design principle
 
 The original notebooks remain in the repository root as historical learning artifacts.
