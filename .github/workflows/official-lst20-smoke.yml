@@ -1,0 +1,88 @@
+name: Official LST20 Smoke Benchmark
+
+on:
+  push:
+    branches: [2026-official-lst20-smoke]
+  workflow_dispatch:
+
+jobs:
+  official-lst20-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project and CPU training stack
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+          pip install --index-url https://download.pytorch.org/whl/cpu torch
+          pip install "accelerate>=1.0"
+
+      - name: Download official Open-D LST20 corpus
+        run: |
+          mkdir -p /tmp/lst20
+          curl -L --fail --retry 3 \
+            "https://opend-portal.nectec.or.th/dataset/d1364791-84bc-4b65-9904-79aa0aa2c5a6/resource/063e2392-1eba-4099-a732-fbaf1ba9a293/download/opend_lst20_corpus.zip" \
+            -o /tmp/lst20/opend_lst20_corpus.zip
+          unzip -q /tmp/lst20/opend_lst20_corpus.zip -d /tmp/lst20/extracted
+          du -sh /tmp/lst20/opend_lst20_corpus.zip /tmp/lst20/extracted
+          find /tmp/lst20/extracted -maxdepth 3 -type d | sort | head -80
+
+      - name: Locate corpus root
+        id: corpus
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          from pathlib import Path
+          base = Path("/tmp/lst20/extracted")
+          matches = []
+          for path in [base, *base.rglob("*")]:
+              if path.is_dir():
+                  names = {p.name.lower() for p in path.iterdir() if p.is_dir()}
+                  if {"train", "eval", "test"}.issubset(names):
+                      matches.append(path)
+          if not matches:
+              raise SystemExit("Could not find directory containing train/eval/test")
+          root = sorted(matches, key=lambda p: len(p.parts))[0]
+          print(f"data_dir={root}")
+          print(f"Located LST20 corpus root: {root}", file=__import__("sys").stderr)
+          PY
+
+      - name: Audit official corpus
+        run: |
+          thai-ner-audit --data-dir "${{ steps.corpus.outputs.data_dir }}" | tee /tmp/lst20/audit.json
+
+      - name: Run small end-to-end WangchanBERTa training smoke test
+        run: |
+          thai-ner-train \
+            --data-dir "${{ steps.corpus.outputs.data_dir }}" \
+            --smoke-limit 32 \
+            --epochs 1 \
+            --train-batch-size 4 \
+            --eval-batch-size 4 \
+            --max-length 128 \
+            --seed 42 \
+            --output-dir outputs/official-lst20-smoke-2026
+
+      - name: Show generated benchmark artifacts
+        run: |
+          cat outputs/official-lst20-smoke-2026/BENCHMARK_RESULT.md
+          python -m json.tool outputs/official-lst20-smoke-2026/benchmark_run.json
+
+      - name: Upload smoke benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-lst20-smoke-2026
+          path: |
+            /tmp/lst20/audit.json
+            outputs/official-lst20-smoke-2026/benchmark_run.json
+            outputs/official-lst20-smoke-2026/BENCHMARK_RESULT.md
+          if-no-files-found: error
