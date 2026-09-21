@@ -111,7 +111,7 @@ The notebook includes entity classes such as:
 
 The LST20 labels follow a span-tagging convention with prefixes such as `B_`, `I_`, and `E_`.
 
-> Dataset files are **not bundled in this repository**. Please obtain the dataset from its official or authorized source and comply with its applicable terms of use.
+> Dataset files are **not bundled in this repository**. The 2026 workflow documents NECTEC's official Open-D LST20 resource and provides a local fetch/validation helper; corpus files remain excluded from Git. See [LST20 setup](docs/LST20_SETUP.md).
 
 ---
 
@@ -147,7 +147,8 @@ Thai-Name-Entity-Recognition/
 ├── pyproject.toml
 ├── CONTRIBUTING.md
 ├── scripts/
-│   └── validate_notebooks.py
+│   ├── validate_notebooks.py
+│   └── fetch_lst20_opend.py
 ├── .github/workflows/
 │   └── notebook-ci.yml
 ├── docs/
@@ -257,9 +258,17 @@ A full benchmark score is intentionally **not claimed yet**. Publishing one resp
 
 ## 📊 2026 benchmark-ready workflow
 
-The repository is now prepared to produce a **recorded, reproducible benchmark** once an authorized LST20 corpus is available locally.
+The repository is now prepared to produce a **recorded, reproducible benchmark** from a local LST20 corpus.
 
-First audit the corpus:
+NECTEC's official Open-D resource is documented in [docs/LST20_SETUP.md](docs/LST20_SETUP.md). For a local download + ZIP validation + extraction:
+
+```bash
+python scripts/fetch_lst20_opend.py
+```
+
+If the ZIP was downloaded in a browser, use `--existing-zip --zip-path /path/to/opend_lst20_corpus.zip`.
+
+Then audit the corpus:
 
 ```bash
 thai-ner-audit --data-dir /path/to/LST20Corpus
@@ -297,7 +306,7 @@ See:
 - [2026 model-card template](docs/MODEL_CARD_2026_TEMPLATE.md)
 - [project timeline / changelog](CHANGELOG.md)
 
-> The remaining blocker for an actual full score is intentionally external: LST20 must be acquired through the authorized AI for Thai flow and is not redistributed by this repository.
+> LST20 itself is not redistributed by this repository. The full benchmark should run from a local copy obtained through NECTEC's official source, then only the generated benchmark metadata/metrics should be published.
 
 ---
 
@@ -377,7 +386,7 @@ Completed in the 2026 continuation:
 
 Next meaningful milestone:
 
-- ⏳ acquire LST20 through the authorized AI for Thai flow
+- ✅ document and validate the official NECTEC Open-D LST20 source
 - ⏳ run and record the complete WangchanBERTa + LST20 benchmark
 - ⏳ publish the generated precision / recall / F1 result
 - ⏳ modernize the historical BiLSTM path only if it adds comparison value
