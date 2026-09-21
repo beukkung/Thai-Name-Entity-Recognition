@@ -15,6 +15,7 @@ dependencies = [
   "datasets>=2.19",
   "accelerate>=1.0",
   "sentencepiece>=0.2",
+  "protobuf>=5",
   "seqeval>=1.2.2",
 ]
 
