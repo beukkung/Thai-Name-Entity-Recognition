@@ -26,11 +26,25 @@ def collect_environment() -> dict:
         "seqeval",
         "numpy",
     ]
+    hardware = {
+        "cuda_available": False,
+        "cuda_device": None,
+    }
+    try:
+        import torch
+
+        hardware["cuda_available"] = bool(torch.cuda.is_available())
+        if torch.cuda.is_available():
+            hardware["cuda_device"] = torch.cuda.get_device_name(0)
+    except ImportError:
+        pass
+
     return {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "python": platform.python_version(),
         "platform": platform.platform(),
         "packages": {name: _pkg_version(name) for name in packages},
+        "hardware": hardware,
     }
 
 
@@ -90,6 +104,8 @@ def render_benchmark_summary(run: dict) -> str:
 - **Timestamp (UTC):** {env.get("timestamp_utc", "—")}
 - **Python:** {env.get("python", "—")}
 - **Platform:** {env.get("platform", "—")}
+- **CUDA available:** {env.get("hardware", {}).get("cuda_available", "—")}
+- **CUDA device:** {env.get("hardware", {}).get("cuda_device") or "—"}
 
 This file records one experiment run. It should not be interpreted as a new state-of-the-art claim unless the benchmark protocol has been independently reviewed.
 """
@@ -97,6 +113,7 @@ This file records one experiment run. It should not be interpreted as a new stat
 
 def write_run_artifacts(output_dir: str | Path, run: dict) -> None:
     output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     save_json(output_dir / "benchmark_run.json", run)
     (output_dir / "BENCHMARK_RESULT.md").write_text(
         render_benchmark_summary(run),
