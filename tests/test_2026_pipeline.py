@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from thai_ner_2026.data import parse_lst20_file
 from thai_ner_2026.metrics import build_compute_metrics, lst20_label_to_iob2
@@ -13,7 +14,7 @@ def test_parse_lst20_file(tmp_path: Path):
         "สมชาย\tNN\tB_PER\tO\n"
         "ใจดี\tNN\tE_PER\tO\n"
         "\n"
-        "กรุงเทพ\tNN\tNOT_A_REAL_TAG\tO\n",
+        "กรุงเทพ\tNN\tO\tO\n",
         encoding="utf-8",
     )
 
@@ -23,6 +24,21 @@ def test_parse_lst20_file(tmp_path: Path):
     assert examples[0]["tokens"] == ["นาย", "สมชาย", "ใจดี"]
     assert examples[0]["ner_tags"] == ["B_TTL", "B_PER", "E_PER"]
     assert examples[1]["ner_tags"] == ["O"]
+
+
+def test_parse_lst20_file_rejects_unknown_label(tmp_path: Path):
+    path = tmp_path / "invalid.txt"
+    path.write_text("กรุงเทพ\tNN\tNOT_A_REAL_TAG\tO\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="NOT_A_REAL_TAG"):
+        parse_lst20_file(path)
+
+
+def test_load_lst20_split_rejects_non_positive_limit(tmp_path: Path):
+    with pytest.raises(ValueError, match="positive integer"):
+        from thai_ner_2026.data import load_lst20_split
+
+        load_lst20_split(tmp_path, "train", limit=0)
 
 
 def test_lst20_label_to_iob2():
