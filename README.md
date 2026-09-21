@@ -197,6 +197,7 @@ source .venv/bin/activate
 pip install -r requirements-modern.txt
 ```
 
+```bash
 # Execute the CI-tested quickstart locally
 jupyter nbconvert \
   --to notebook \
