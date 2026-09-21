@@ -13,10 +13,12 @@ from transformers import (
     TrainingArguments,
 )
 
+from .audit import audit_corpus
 from .data import load_lst20_dataset_dict
 from .labels import ID2LABEL, LABEL2ID, LST20_NER_TAGS
 from .metrics import build_compute_metrics
 from .preprocessing import tokenize_and_align_batch
+from .reporting import collect_environment, write_run_artifacts
 
 DEFAULT_MODEL = "airesearch/wangchanberta-base-att-spm-uncased"
 
@@ -47,6 +49,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    print("Auditing LST20 corpus before training...")
+    dataset_audit = audit_corpus(args.data_dir)
 
     dataset = load_lst20_dataset_dict(
         args.data_dir,
@@ -111,9 +117,33 @@ def main() -> None:
     test_metrics = trainer.evaluate(tokenized["test"], metric_key_prefix="test")
     print(test_metrics)
 
-    output_dir.mkdir(parents=True, exist_ok=True)
     trainer.save_model(str(output_dir / "best-model"))
     tokenizer.save_pretrained(str(output_dir / "best-model"))
+
+    run_record = {
+        "project_era": "2026-modernization",
+        "dataset": "LST20",
+        "training": {
+            "model_name": args.model_name,
+            "max_length": args.max_length,
+            "epochs": args.epochs,
+            "learning_rate": args.learning_rate,
+            "train_batch_size": args.train_batch_size,
+            "eval_batch_size": args.eval_batch_size,
+            "weight_decay": args.weight_decay,
+            "seed": args.seed,
+            "smoke_limit": args.smoke_limit,
+        },
+        "dataset_audit": dataset_audit,
+        "metrics": {
+            key: float(value) if isinstance(value, (int, float)) else value
+            for key, value in test_metrics.items()
+        },
+        "environment": collect_environment(),
+    }
+    write_run_artifacts(output_dir, run_record)
+
+    print(f"Benchmark artifacts written to {output_dir.resolve()}")
 
 
 if __name__ == "__main__":
