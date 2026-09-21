@@ -30,7 +30,7 @@ For a runnable first experience, use the modern PyThaiNLP notebook:
 ➡️ **[Open `notebooks/00_quickstart_pythainlp.ipynb`](notebooks/00_quickstart_pythainlp.ipynb)**  
 ➡️ **[Open in Google Colab](https://colab.research.google.com/github/beukkung/Thai-Name-Entity-Recognition/blob/main/notebooks/00_quickstart_pythainlp.ipynb)**
 
-This quickstart:
+This quickstart uses the current PyThaiNLP `thainer-v2` NER engine and:
 
 - does **not** require the LST20 dataset
 - uses the current PyThaiNLP public NER API
@@ -197,6 +197,14 @@ source .venv/bin/activate
 pip install -r requirements-modern.txt
 ```
 
+# Execute the CI-tested quickstart locally
+jupyter nbconvert \
+  --to notebook \
+  --execute notebooks/00_quickstart_pythainlp.ipynb \
+  --output /tmp/00_quickstart_pythainlp.executed.ipynb \
+  --ExecutePreprocessor.timeout=600
+```
+
 For the historical notebooks, `requirements.txt` is a reference list rather than a guaranteed lock file. See the reproducibility notes before recreating the 2022 environments.
 
 Some notebooks were originally created in Google Colab and contain notebook-specific installation commands. Because several dependencies have changed since the original 2022 experiments, see [Reproducibility notes](docs/REPRODUCIBILITY.md) before attempting to rerun every cell unchanged.
@@ -241,6 +249,8 @@ The 2026 pipeline adds:
 A full benchmark score is intentionally **not claimed yet**. Publishing one responsibly requires a complete LST20 training run with recorded hardware, environment, hyperparameters, and metrics.
 
 ➡️ See **[docs/2026_MODERNIZATION.md](docs/2026_MODERNIZATION.md)** for the design and reproducibility boundary.
+
+➡️ See **[2026 current practice and modernization notes](docs/2026_MODERNIZATION.md#what-current-thai-ner-practice-looks-like-in-2026)** for the explicit 2022 → 2026 comparison.
 
 ---
 
@@ -310,10 +320,13 @@ The notebook combines Hugging Face tooling, `thai2transformers`, and `simpletran
 
 ### 3. PyThaiNLP baseline
 
-The PyThaiNLP notebook demonstrates NER inference with:
+The maintained 2026 quickstart demonstrates NER inference with the current PyThaiNLP API:
 
 ```python
-from pythainlp.tag.named_entity import ThaiNameTagger
+from pythainlp.tag import NER
+
+ner = NER("thainer-v2")
+entities = ner.tag("นายสมชายทำงานที่ธนาคารแห่งหนึ่งในกรุงเทพมหานคร")
 ```
 
 This is useful as a quick baseline before investing in custom model training.
