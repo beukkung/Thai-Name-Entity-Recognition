@@ -1,0 +1,14 @@
+{
+  "status": "pending-full-authorized-lst20-run",
+  "project_era": "2026-modernization",
+  "base_model": "airesearch/wangchanberta-base-att-spm-uncased",
+  "dataset": "LST20",
+  "metrics": {
+    "test_precision": null,
+    "test_recall": null,
+    "test_f1": null,
+    "test_accuracy": null,
+    "test_loss": null
+  },
+  "note": "Populate from benchmark_run.json produced by the training pipeline. Do not enter estimated metrics."
+}

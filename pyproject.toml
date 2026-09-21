@@ -28,6 +28,7 @@ dev = [
 
 [project.scripts]
 thai-ner-train = "thai_ner_2026.train:main"
+thai-ner-audit = "thai_ner_2026.audit_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
