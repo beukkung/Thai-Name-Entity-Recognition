@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thai-ner-2026"
+version = "0.1.0"
+description = "2026 modernization utilities for the Thai Named Entity Recognition research repository"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.26",
+  "transformers>=5.17,<6",
+  "datasets>=2.19",
+  "sentencepiece>=0.2",
+  "protobuf>=5",
+  "seqeval>=1.2.2",
+]
+
+[project.optional-dependencies]
+train = [
+  "torch>=2.2",
+  "accelerate>=1.0",
+]
+dev = [
+  "pytest>=8",
+]
+
+[project.scripts]
+thai-ner-train = "thai_ner_2026.train:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
