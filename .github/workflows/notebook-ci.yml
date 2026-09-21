@@ -1,0 +1,50 @@
+name: Notebook CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate-notebooks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install notebook validation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "nbformat>=5.9"
+
+      - name: Validate notebook files
+        run: python scripts/validate_notebooks.py
+
+  execute-modern-quickstart:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install execution dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-modern.txt
+
+      - name: Execute quickstart notebook
+        run: |
+          mkdir -p /tmp/notebook-output
+          jupyter nbconvert             --to notebook             --execute notebooks/00_quickstart_pythainlp.ipynb             --output /tmp/notebook-output/00_quickstart_pythainlp.executed.ipynb             --ExecutePreprocessor.timeout=600

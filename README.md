@@ -1,5 +1,12 @@
 # Thai Named Entity Recognition 🇹🇭
 
+[![Notebook CI](https://github.com/beukkung/Thai-Name-Entity-Recognition/actions/workflows/notebook-ci.yml/badge.svg)](https://github.com/beukkung/Thai-Name-Entity-Recognition/actions/workflows/notebook-ci.yml)
+![Thai NLP](https://img.shields.io/badge/Thai-NLP-0A66C2)
+![Named Entity Recognition](https://img.shields.io/badge/Task-Named%20Entity%20Recognition-6f42c1)
+![LST20](https://img.shields.io/badge/Dataset-LST20-2ea44f)
+![WangchanBERTa](https://img.shields.io/badge/Model-WangchanBERTa-orange)
+![PyThaiNLP](https://img.shields.io/badge/Toolkit-PyThaiNLP-blue)
+
 A compact research repository for experimenting with **Thai Named Entity Recognition (NER)** using multiple modeling approaches, including **BiLSTM**, **WangchanBERTa / Transformer-based NER**, and a **PyThaiNLP baseline**.
 
 The project is centered on Thai-language sequence labeling and uses the **LST20 corpus** as the main reference dataset in the notebook workflow.
@@ -8,10 +15,38 @@ The project is centered on Thai-language sequence labeling and uses the **LST20 
 
 ---
 
+## ⚡ Quickstart — CI-tested notebook
+
+For a runnable first experience, use the modern PyThaiNLP notebook:
+
+➡️ **[Open `notebooks/00_quickstart_pythainlp.ipynb`](notebooks/00_quickstart_pythainlp.ipynb)**  
+➡️ **[Open in Google Colab](https://colab.research.google.com/github/beukkung/Thai-Name-Entity-Recognition/blob/main/notebooks/00_quickstart_pythainlp.ipynb)**
+
+This quickstart:
+
+- does **not** require the LST20 dataset
+- uses the current PyThaiNLP public NER API
+- is executed automatically by GitHub Actions
+- contains a small assertion so CI fails when inference does not return tagged tokens
+
+### Notebook status
+
+| Notebook | Status | CI execution | Notes |
+|---|---|---|---|
+| `notebooks/00_quickstart_pythainlp.ipynb` | ✅ Modern | ✅ Yes | Recommended starting point |
+| `ThaiNER-PlyThaiNLP.ipynb` | ⚠️ Legacy (2022) | No | Historical code; old API / logic requires modernization |
+| `ThaiNER-BILSTM.ipynb` | ⚠️ Legacy (2022) | No | Depends on local corpus/preprocessing and old TensorFlow-era code |
+| `ThaiNER-BERT.ipynb` | ⚠️ Legacy (2022) | No | Depends on LST20, Google Drive paths, and historical Transformer stack |
+
+> **Important:** “Notebook exists” is not the same as “reproducible benchmark.” The modern quickstart is continuously executed; the three original notebooks are preserved as historical experiments until their training pipelines are migrated and benchmarked.
+
+---
+
 ## ✨ What this repository contains
 
 | Notebook | Approach | Main purpose |
 |---|---|---|
+| `notebooks/00_quickstart_pythainlp.ipynb` | Modern PyThaiNLP | CI-tested runnable entry point |
 | `ThaiNER-BILSTM.ipynb` | Bidirectional LSTM | Builds a neural sequence-labeling workflow for Thai NER |
 | `ThaiNER-BERT.ipynb` | WangchanBERTa / Transformer | Fine-tunes a Thai pretrained transformer for token classification |
 | `ThaiNER-PlyThaiNLP.ipynb` | PyThaiNLP | Provides a lightweight baseline using `ThaiNameTagger` |
@@ -75,9 +110,16 @@ Thai-Name-Entity-Recognition/
 ├── ThaiNER-BILSTM.ipynb
 ├── ThaiNER-BERT.ipynb
 ├── ThaiNER-PlyThaiNLP.ipynb
+├── notebooks/
+│   └── 00_quickstart_pythainlp.ipynb
 ├── README.md
 ├── requirements.txt
+├── requirements-modern.txt
 ├── CONTRIBUTING.md
+├── scripts/
+│   └── validate_notebooks.py
+├── .github/workflows/
+│   └── notebook-ci.yml
 ├── docs/
 │   └── REPRODUCIBILITY.md
 ├── .gitignore
@@ -115,11 +157,13 @@ Activate it:
 source .venv/bin/activate
 ```
 
-### 3. Install the common dependencies
+### 3. Install the modern quickstart environment
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-modern.txt
 ```
+
+For the historical notebooks, `requirements.txt` is a reference list rather than a guaranteed lock file. See the reproducibility notes before recreating the 2022 environments.
 
 Some notebooks were originally created in Google Colab and contain notebook-specific installation commands. Because several dependencies have changed since the original 2022 experiments, see [Reproducibility notes](docs/REPRODUCIBILITY.md) before attempting to rerun every cell unchanged.
 
@@ -204,6 +248,14 @@ Potential future improvements include:
 - adding automated notebook smoke tests
 - introducing experiment tracking and model artifacts
 - publishing a small inference demo
+
+---
+
+## 🏷️ Project topics
+
+**thai-nlp** · **named-entity-recognition** · **ner** · **lst20** · **wangchanberta** · **pythainlp** · **bilstm** · **transformers** · **jupyter-notebook** · **natural-language-processing**
+
+These keywords are also reflected in the repository documentation and citation metadata to improve discoverability.
 
 ---
 
