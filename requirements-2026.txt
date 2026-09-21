@@ -1,0 +1,7 @@
+# 2026 modernization environment.
+# Install with: pip install -r requirements-2026.txt
+
+-e .
+pytest>=8
+jupyter>=1.0
+nbconvert>=7.0
