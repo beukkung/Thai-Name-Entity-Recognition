@@ -10,6 +10,13 @@ The goal of this document is to help readers distinguish between:
 2. historical package assumptions, and
 3. what may need to change in a modern environment.
 
+
+## Maintained 2026 quickstart
+
+`notebooks/00_quickstart_pythainlp.ipynb` is the supported low-cost entry point. It uses the current PyThaiNLP `NER("thainer-v2")` API and is executed by CI. This is separate from the root-level `ThaiNER-PlyThaiNLP.ipynb`, which preserves the original 2022 `pythainlp==3.0.3` experiment.
+
+The quickstart proves that a clean inference notebook runs. It does not prove that a full LST20 training benchmark can run without the separately acquired corpus and a suitable compute budget.
+
 ## Notebook-by-notebook notes
 
 ### ThaiNER-BERT.ipynb
