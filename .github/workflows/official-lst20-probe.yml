@@ -1,0 +1,29 @@
+name: Official LST20 Network Probe
+
+on:
+  push:
+    branches: [2026-official-lst20-probe]
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe resource headers and first KB
+        shell: bash
+        run: |
+          set -euxo pipefail
+          URL="https://opend-portal.nectec.or.th/dataset/d1364791-84bc-4b65-9904-79aa0aa2c5a6/resource/063e2392-1eba-4099-a732-fbaf1ba9a293/download/opend_lst20_corpus.zip"
+          curl -I -L --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" "$URL"
+          curl -L --fail --connect-timeout 10 --max-time 30 \
+            -A "Mozilla/5.0" -r 0-1023 "$URL" -o /tmp/lst20-head.bin
+          ls -lh /tmp/lst20-head.bin
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("/tmp/lst20-head.bin")
+          b=p.read_bytes()
+          print("bytes", len(b), "magic", b[:8])
+          if not b.startswith(b"PK"):
+              raise SystemExit("Response is not a ZIP stream")
+          PY
