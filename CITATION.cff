@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the project and the relevant upstream datasets/models."
+title: "Thai Named Entity Recognition"
+type: software
+authors:
+  - family-names: "Akarawatthanawanit"
+    given-names: "Siripongsa"
+repository-code: "https://github.com/beukkung/Thai-Name-Entity-Recognition"
+url: "https://github.com/beukkung/Thai-Name-Entity-Recognition"
+abstract: "Notebook-based experiments for Thai Named Entity Recognition using BiLSTM, WangchanBERTa/Transformer, and PyThaiNLP approaches."
+keywords:
+  - Thai NLP
+  - Named Entity Recognition
+  - NER
+  - LST20
+  - BiLSTM
+  - WangchanBERTa
+  - PyThaiNLP
