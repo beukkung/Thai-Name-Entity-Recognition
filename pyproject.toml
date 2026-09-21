@@ -10,16 +10,18 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
   "numpy>=1.26",
-  "torch>=2.2",
   "transformers>=5.17,<6",
   "datasets>=2.19",
-  "accelerate>=1.0",
   "sentencepiece>=0.2",
   "protobuf>=5",
   "seqeval>=1.2.2",
 ]
 
 [project.optional-dependencies]
+train = [
+  "torch>=2.2",
+  "accelerate>=1.0",
+]
 dev = [
   "pytest>=8",
 ]
