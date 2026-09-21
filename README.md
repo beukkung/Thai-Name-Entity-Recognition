@@ -6,6 +6,14 @@
 ![LST20](https://img.shields.io/badge/Dataset-LST20-2ea44f)
 ![WangchanBERTa](https://img.shields.io/badge/Model-WangchanBERTa-orange)
 ![PyThaiNLP](https://img.shields.io/badge/Toolkit-PyThaiNLP-blue)
+![2026 Modernization](https://img.shields.io/badge/Update-2026%20Modernization-8A2BE2)
+
+> [!IMPORTANT]
+> **Project timeline:** the original Thai NER experiments were created in **2022**. In **September 2026**, this repository was actively revisited as a **modernization / continuation update**—adding reproducible project structure, CI, a maintained PyThaiNLP quickstart, and a modern WangchanBERTa + LST20 training pipeline. The historical notebooks remain intact so the evolution of the project is explicit.
+
+➡️ **[Read the 2026 Modernization Notes](docs/2026_MODERNIZATION.md)**
+
+---
 
 A compact research repository for experimenting with **Thai Named Entity Recognition (NER)** using multiple modeling approaches, including **BiLSTM**, **WangchanBERTa / Transformer-based NER**, and a **PyThaiNLP baseline**.
 
@@ -33,7 +41,8 @@ This quickstart:
 
 | Notebook | Status | CI execution | Notes |
 |---|---|---|---|
-| `notebooks/00_quickstart_pythainlp.ipynb` | ✅ Modern | ✅ Yes | Recommended starting point |
+| `notebooks/00_quickstart_pythainlp.ipynb` | ✅ 2026 Modern | ✅ Yes | Recommended zero-dataset starting point |
+| `notebooks/10_wangchanberta_lst20_2026.ipynb` | 🧪 2026 Modernization | ⚙️ Pipeline tested | Modern WangchanBERTa + LST20 training walkthrough |
 | `ThaiNER-PlyThaiNLP.ipynb` | ⚠️ Legacy (2022) | No | Historical code; old API / logic requires modernization |
 | `ThaiNER-BILSTM.ipynb` | ⚠️ Legacy (2022) | No | Depends on local corpus/preprocessing and old TensorFlow-era code |
 | `ThaiNER-BERT.ipynb` | ⚠️ Legacy (2022) | No | Depends on LST20, Google Drive paths, and historical Transformer stack |
@@ -46,7 +55,8 @@ This quickstart:
 
 | Notebook | Approach | Main purpose |
 |---|---|---|
-| `notebooks/00_quickstart_pythainlp.ipynb` | Modern PyThaiNLP | CI-tested runnable entry point |
+| `notebooks/00_quickstart_pythainlp.ipynb` | 2026 PyThaiNLP | CI-tested runnable entry point |
+| `notebooks/10_wangchanberta_lst20_2026.ipynb` | 2026 WangchanBERTa | Modern reproducible LST20 training workflow |
 | `ThaiNER-BILSTM.ipynb` | Bidirectional LSTM | Builds a neural sequence-labeling workflow for Thai NER |
 | `ThaiNER-BERT.ipynb` | WangchanBERTa / Transformer | Fine-tunes a Thai pretrained transformer for token classification |
 | `ThaiNER-PlyThaiNLP.ipynb` | PyThaiNLP | Provides a lightweight baseline using `ThaiNameTagger` |
@@ -111,17 +121,29 @@ Thai-Name-Entity-Recognition/
 ├── ThaiNER-BERT.ipynb
 ├── ThaiNER-PlyThaiNLP.ipynb
 ├── notebooks/
-│   └── 00_quickstart_pythainlp.ipynb
+│   ├── 00_quickstart_pythainlp.ipynb
+│   └── 10_wangchanberta_lst20_2026.ipynb
+├── src/thai_ner_2026/
+│   ├── data.py
+│   ├── labels.py
+│   ├── metrics.py
+│   ├── preprocessing.py
+│   └── train.py
+├── tests/
+│   └── test_2026_pipeline.py
 ├── README.md
 ├── requirements.txt
 ├── requirements-modern.txt
+├── requirements-2026.txt
+├── pyproject.toml
 ├── CONTRIBUTING.md
 ├── scripts/
 │   └── validate_notebooks.py
 ├── .github/workflows/
 │   └── notebook-ci.yml
 ├── docs/
-│   └── REPRODUCIBILITY.md
+│   ├── REPRODUCIBILITY.md
+│   └── 2026_MODERNIZATION.md
 ├── .gitignore
 └── .gitattributes
 ```
@@ -171,13 +193,42 @@ Some notebooks were originally created in Google Colab and contain notebook-spec
 
 ## 🧪 Recommended notebook order
 
-If you are exploring the project for the first time:
+If you are exploring the repository today:
 
-1. Start with **`ThaiNER-PlyThaiNLP.ipynb`** to understand a simple baseline.
-2. Continue with **`ThaiNER-BILSTM.ipynb`** to study a recurrent neural-network approach.
-3. Use **`ThaiNER-BERT.ipynb`** for a pretrained Transformer-based approach with WangchanBERTa.
+1. Start with **`notebooks/00_quickstart_pythainlp.ipynb`** for a CI-tested Thai NER inference example.
+2. Continue with **`notebooks/10_wangchanberta_lst20_2026.ipynb`** for the maintained **2026 WangchanBERTa + LST20** pipeline.
+3. Then inspect the root-level **2022 notebooks** to understand the original BiLSTM, PyThaiNLP, and WangchanBERTa experiments.
 
-This progression makes it easier to compare increasingly sophisticated approaches while keeping the same underlying NER problem in view.
+This ordering makes the repository's history explicit: **use the 2026 code to reproduce current workflows; use the 2022 notebooks to study the original experiments.**
+
+---
+
+## 🆕 2026 WangchanBERTa modernization
+
+The maintained training path now lives in `src/thai_ner_2026/` and uses current Hugging Face token-classification patterns:
+
+```bash
+pip install -r requirements-2026.txt
+
+thai-ner-train \
+  --data-dir /path/to/LST20Corpus \
+  --epochs 3 \
+  --output-dir outputs/wangchanberta-lst20-2026
+```
+
+The 2026 pipeline adds:
+
+- direct parsing of authorized local LST20 `train/`, `eval/`, and `test/` files
+- WangchanBERTa fast-tokenizer word/subtoken alignment
+- a 31-label LST20 token-classification head
+- entity-level precision / recall / F1 with `seqeval`
+- reproducible CLI training arguments and fixed seed
+- automated parser/metric unit tests
+- CI smoke testing against the real WangchanBERTa tokenizer and configuration
+
+A full benchmark score is intentionally **not claimed yet**. Publishing one responsibly requires a complete LST20 training run with recorded hardware, environment, hyperparameters, and metrics.
+
+➡️ See **[docs/2026_MODERNIZATION.md](docs/2026_MODERNIZATION.md)** for the design and reproducibility boundary.
 
 ---
 
@@ -235,19 +286,25 @@ For more detail, see:
 
 ## 📌 Current project status
 
-**Status:** Research / educational archive with documented experiments.
+**Status:** Active **2026 modernization** of a 2022 Thai NER research project.
 
-The repository preserves the original notebook-based experimentation while improving documentation around setup, intent, limitations, and reuse.
+Completed in the 2026 continuation:
 
-Potential future improvements include:
+- ✅ professional repository documentation
+- ✅ CI-tested PyThaiNLP quickstart
+- ✅ reusable `src/` package
+- ✅ direct LST20 parser
+- ✅ modern WangchanBERTa training CLI
+- ✅ subtoken label alignment
+- ✅ entity-level evaluation utilities
+- ✅ automated unit and integration smoke tests
 
-- refactoring common preprocessing into reusable Python modules
-- adding a deterministic evaluation script
-- reporting precision / recall / F1 consistently across approaches
-- adding a modern Hugging Face token-classification pipeline
-- adding automated notebook smoke tests
-- introducing experiment tracking and model artifacts
-- publishing a small inference demo
+Next meaningful milestone:
+
+- ⏳ run and record a complete WangchanBERTa + LST20 benchmark
+- ⏳ publish the resulting precision / recall / F1 table
+- ⏳ add model-card style experiment metadata
+- ⏳ modernize the historical BiLSTM path only if it adds comparison value
 
 ---
 
